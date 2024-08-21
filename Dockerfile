@@ -5,6 +5,9 @@ ARG user
 ARG uid
 
 # Install system dependencies
+RUN apt-get update && apt-get install -y nginx
+
+COPY ./docker-compose/nginx/crowdfunding-app.conf /etc/nginx/default.conf
 RUN apt-get update && apt-get install -y \
     git \
     curl \
@@ -47,5 +50,5 @@ USER $user
 RUN composer install --prefer-dist --no-scripts --no-dev --optimize-autoloader
 
 # Expose the port 9000 and start php-fpm server
-EXPOSE 9000
+EXPOSE 80
 CMD ["php-fpm"]
