@@ -11,7 +11,7 @@ services:
     container_name: crowdfunding
     restart: unless-stopped
     ports:
-      - "8001:80"
+        - "8001:80"
     working_dir: /var/www/
     environment:
         APP_URL: http://localhost
@@ -30,6 +30,7 @@ services:
       sh -c "
       composer install &&
       php artisan migrate --force &&
+      php artisan key:generate &&
       php artisan l5-swagger:generate &&
       apache2-foreground
       "
