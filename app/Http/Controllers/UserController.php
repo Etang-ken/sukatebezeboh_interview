@@ -7,6 +7,9 @@ use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 
+/**
+ * @OA\Info(title="App API", version="0.1")
+ */
 class UserController extends Controller
 {
     /**
