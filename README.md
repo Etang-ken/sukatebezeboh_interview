@@ -6,5 +6,6 @@
         3. Navigate to the docker directory: cd crowdfunding
         4. Run app: docker-compose up
 
-# api docs route
-    /api/documentation
+# api docs and host
+    1. Locally, the application runs on this address: http://localhost:8001
+    2. api docs route: /api/documentation
