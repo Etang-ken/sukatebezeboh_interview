@@ -15,7 +15,7 @@ services:
       DB_USERNAME: ${DB_USERNAME}
       DB_PASSWORD: ${DB_PASSWORD}
     restart: unless-stopped
-    working_dir: /var/www/public/
+    working_dir: /var/www/
     volumes:
       - ./:/var/www
     networks:
@@ -47,7 +47,7 @@ services:
       - 8001:80
     volumes:
       - ./:/var/www
-      - ./docker-compose/nginx/crowdfunding-app.conf:/etc/nginx/conf.d/
+      - ./docker-compose/nginx/crowdfunding-app.:/etc/nginx/conf.d/
     networks:
       - app-network
 networks:
