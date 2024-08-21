@@ -1,54 +1,55 @@
-version: '3.8'
-
+version: "3.7"
 services:
   app:
     build:
-      context: .
+      args:
+        user: root
+        uid: 1000
+      context: ./
       dockerfile: Dockerfile
-    image: crowdfunding-app
-    container_name: crowdfunding-app
-    restart: unless-stopped
+    image: crowdfunding-web
+    container_name: crowdfunding
     environment:
-      SERVICE_NAME: app
-      SERVICE_TAGS: dev
-    working_dir: /var/www
+      DB_HOST: db  # Make sure this matches the service name
+      DB_DATABASE: ${DB_DATABASE}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+    restart: unless-stopped
+    working_dir: /var/www/
     volumes:
-      - .:/var/www
+      - ./:/var/www
     networks:
       - app-network
-
+    command: >
+      sh -c "
+      php artisan migrate --force &&
+      php-fpm"
   db:
-    image: mysql:8.0
+    image: mysql:5.7.22
     container_name: crowdfunding-db
     restart: unless-stopped
     environment:
-      MYSQL_DATABASE: crowdfunding
-      MYSQL_ROOT_PASSWORD: your_password
-      MYSQL_USER: user
-      MYSQL_PASSWORD: password
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_USER: ${DB_USERNAME}
+      SERVICE_TAGS: dev
+      SERVICE_NAME: mysql
     volumes:
-      - dbdata:/var/lib/mysql
+      - ./docker-compose/mysql:/docker-entrypoint-initdb.d
     networks:
       - app-network
-    ports:
-      - "3306:3306"
-
-  web:
+  nginx:
     image: nginx:alpine
-    container_name: crowdfunding-web
+    container_name: crowdfunding-ngx
     restart: unless-stopped
     ports:
-      - "80:80"
+      - 8000:80
     volumes:
-      - .:/var/www
-      - ./nginx/conf.d:/etc/nginx/conf.d
+      - ./:/var/www
+      - ./docker-compose/nginx:/etc/nginx/conf.d/
     networks:
       - app-network
-
 networks:
   app-network:
     driver: bridge
-
-volumes:
-  dbdata:
-    driver: local

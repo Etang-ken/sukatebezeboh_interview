@@ -1,35 +1,51 @@
 FROM php:8.2-fpm
 
-# Set working directory
-WORKDIR /var/www
+# Arguments defined in docker-compose.yml
+ARG user
+ARG uid
 
-# Install dependencies
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
-    build-essential \
-    libpng-dev \
-    libjpeg62-turbo-dev \
-    libfreetype6-dev \
-    libzip-dev \
-    zip \
-    unzip \
     git \
-    curl
+    curl \
+    libpng-dev \
+    libonig-dev \
+    libxml2-dev \
+    zip \
+    unzip
 
-# Install extensions
-RUN docker-php-ext-install pdo_mysql zip exif pcntl
-RUN docker-php-ext-configure gd --with-freetype --with-jpeg
-RUN docker-php-ext-install gd
+# Clear cache
+RUN apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Install PHP extensions
+RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Copy application
+# Add user
+RUN if ! id -u $user > /dev/null 2>&1; then \
+    useradd -G www-data,root -u $uid -d /home/$user $user; \
+fi
+
+RUN mkdir -p /home/$user/.composer && \
+    chown -R $user:$user /home/$user
+
+# Set working directory
+WORKDIR /var/www
+
+# Copy existing application directory contents
 COPY . /var/www
 
-# Set file permissions
-RUN chown -R www-data:www-data /var/www
-RUN chmod -R 755 /var/www/storage
+# Set permissions
+RUN chown -R $user:www-data /var/www
 
-# Expose port 9000 and start php-fpm server
+# Switch to the new user
+USER $user
+
+# Install composer dependencies
+RUN composer install --prefer-dist --no-scripts --no-dev --optimize-autoloader
+
+# Expose the port 9000 and start php-fpm server
 EXPOSE 9000
 CMD ["php-fpm"]
