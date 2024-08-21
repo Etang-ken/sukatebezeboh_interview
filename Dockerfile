@@ -38,7 +38,7 @@ RUN mkdir -p /home/$user/.composer && \
     chown -R $user:$user /home/$user
 
 # Set working directory
-WORKDIR /var/www
+WORKDIR /var/www/public
 
 # Copy existing application directory contents
 COPY . /var/www
@@ -53,7 +53,7 @@ USER $user
 RUN composer install --prefer-dist --no-scripts --no-dev --optimize-autoloader
 
 # Expose port 80 for Nginx
-EXPOSE 8001
+EXPOSE 80
 
 # Start Nginx and PHP-FPM
 CMD ["sh", "-c", "service nginx start && php-fpm"]

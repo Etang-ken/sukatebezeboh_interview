@@ -15,7 +15,7 @@ services:
       DB_USERNAME: ${DB_USERNAME}
       DB_PASSWORD: ${DB_PASSWORD}
     restart: unless-stopped
-    working_dir: /var/www/
+    working_dir: /var/www/public/
     volumes:
       - ./:/var/www
     networks:
