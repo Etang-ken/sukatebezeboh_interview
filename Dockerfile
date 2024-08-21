@@ -4,10 +4,13 @@ FROM php:8.2-fpm
 ARG user
 ARG uid
 
-# Install system dependencies
+# Install system dependencies and Nginx
 RUN apt-get update && apt-get install -y nginx
 
-COPY ./docker-compose/nginx/crowdfunding-app.conf /etc/nginx/default.conf
+# Copy Nginx configuration file
+COPY ./docker-compose/nginx/crowdfunding-app.conf /etc/nginx/conf.d/default.conf
+
+# Install additional PHP extensions
 RUN apt-get update && apt-get install -y \
     git \
     curl \
@@ -49,6 +52,8 @@ USER $user
 # Install composer dependencies
 RUN composer install --prefer-dist --no-scripts --no-dev --optimize-autoloader
 
-# Expose the port 9000 and start php-fpm server
+# Expose port 80 for Nginx
 EXPOSE 80
-CMD ["php-fpm"]
+
+# Start Nginx and PHP-FPM
+CMD ["sh", "-c", "service nginx start && php-fpm"]
