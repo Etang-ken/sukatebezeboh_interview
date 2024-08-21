@@ -43,10 +43,14 @@ class UserController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
+            'email' => 'required|string|email|max:255',
             'password' => 'required|string|min:8',
         ]);
 
+        $checkuser = User::where('email', $request->input('email'))->first();
+        if ($checkuser) {
+            return response()->json(['message' => "This email has been taken, please use another email."]);
+        }
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
